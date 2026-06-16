@@ -23,6 +23,7 @@ export default function Home() {
 
   const customPieces: Record<string, any> = {};
 
+
   Object.keys(DARK_PIECE_COLUMNS).forEach((piece) => {
     const colIndex = DARK_PIECE_COLUMNS[piece];
     customPieces[piece] = () => (
@@ -90,7 +91,7 @@ export default function Home() {
   }, [game])
 
   useEffect(() => {
-    if (game.turn() === 'b' && !game.isGameOver() && engineready) {
+    if (game.turn() !== playas && !game.isGameOver() && engineready) {
       setThinking(true)
       setEnginestat("Engine Thinking...")
       workerRef.current?.postMessage({
@@ -102,8 +103,7 @@ export default function Home() {
   }, [position, game, engineready])
 
   function onPieceDrop({sourceSquare, targetSquare, piece}: any) {
-    if (thinking || !engineready || game.isGameOver() || game.turn() !== 'w') return false;
-
+    if (thinking || !engineready || game.isGameOver() || game.turn() !== playas) return false;
     try {
       const move = game.move({
         from: sourceSquare,
@@ -120,14 +120,25 @@ export default function Home() {
     }
   }
 
-const chessboardOptions: any = {
-  onPieceDrop,
-  id: 'pyngin-board',
-  position: position,
-  pieces: customPieces,
-  darkSquareStyle: { backgroundColor: "#784F48" },
-  lightSquareStyle: { backgroundColor: "#E2D5A1" }
-};
+  const chessboardOptions: any = {
+    onPieceDrop,
+    id: 'pyngin-board',
+    position: position,
+    pieces: customPieces,
+    darkSquareStyle: { backgroundColor: "#784F48" },
+    lightSquareStyle: { backgroundColor: "#E2D5A1" }
+  };
+
+  const _history = game.history()
+  const m_pairs = []
+  for (let i = 0; i < _history.length; i += 2) {
+  m_pairs.push({
+      turn: Math.floor(i / 2) + 1,
+      w: _history[i],
+      b: _history[i+1] || "*",
+  });}
+
+
   return (
   <div className="min-h-screen h-screen w-full font-dogica bg-[#403241] text-white overflow-hidden">
     <main className="grid w-full h-full grid-cols-2 p-12 gap-8 items-center">
@@ -137,21 +148,30 @@ const chessboardOptions: any = {
         <div className="w-full aspect-square">
           <Chessboard options={chessboardOptions} />
         </div>
+        <div className="text-sm">artwork by <a href="https://dani-maccari.itch.io/" className="hover:text-[#784F48] text-[#e2d5a1] transition-all">Dani maccari</a> </div>
       </div>
-
-      <div className="flex gap-6 justify-start w-full items-start content-center text-center">
-        <h1 className="text-xl">Depth</h1>
-        <div className="gap-2 flex flex-col">
-          <input type="range" step={1} min={1} max={5} value={depth} onChange={(e)=>setdepth(Number(e.target.value) as typeof depth)} className="sliderr">
-          </input>
-             <div className="flex justify-between px-[8px]">
-              {[1, 2, 3, 4, 5].map((n) => (
-                <span key={n} className="font-dogica text-md text-[#E2D5A1]">{n}</span>
-              ))}
+      <div className="flex flex-col gap-6 h-full justify-center items-start content-center">
+        <div className="flex gap-6 justify-start w-full items-start content-center text-center">
+          <h1 className="text-xl">Depth</h1>
+          <div className="gap-2 flex flex-col">
+            <input type="range" step={1} min={1} max={5} value={depth} onChange={(e)=>setdepth(Number(e.target.value) as typeof depth)} className="sliderr">
+            </input>
+              <div className="flex justify-between px-[8px]">
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <span key={n} className="font-dogica text-md text-[#E2D5A1]">{n}</span>
+                ))}
+              </div>
+          </div>
+        </div>
+        <div className="w-full max-w-[60%] p-2 aspect-square overflow-scroll bg-[#784F48] border-2 border-[#E2D5A1]">
+          {m_pairs.map((pair)=>(
+            <div key={pair.turn}>
+            <span>{pair.turn}{". "}</span>
+            <span>{pair.w} {" - "} {pair.b}</span>
             </div>
+          ))}
         </div>
       </div>
-
     </main>
   </div>
   );
