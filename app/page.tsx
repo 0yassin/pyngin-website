@@ -145,9 +145,6 @@ export default function Home() {
     <div className="flex flex-col gap-3 w-full max-w-[480px] mx-auto md:ml-auto md:mr-0">
       <div className="flex w-full items-center justify-between">
         <span className="text-sm text-[#E2D5A1]">{enginestat}</span>
-        <span className={`text-xs transition-opacity duration-300 ${thinking ? "opacity-100 animate-pulse" : "opacity-0"}`}>
-          thinking...
-        </span>
       </div>
       <div className="w-full aspect-square">
         <Chessboard options={chessboardOptions} />
