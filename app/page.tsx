@@ -140,39 +140,65 @@ export default function Home() {
 
 
   return (
-  <div className="min-h-screen h-screen w-full font-dogica bg-[#403241] text-white overflow-hidden">
-    <main className="grid w-full h-full grid-cols-2 p-12 gap-8 items-center">
-
-      <div className="flex flex-col gap-4 justify-self-end items-start w-full max-w-[450px]">
-        <h1 className="text-xl">{enginestat}</h1>
-        <div className="w-full aspect-square">
-          <Chessboard options={chessboardOptions} />
-        </div>
-        <div className="text-sm">artwork by <a href="https://dani-maccari.itch.io/" className="hover:text-[#784F48] text-[#e2d5a1] transition-all">Dani maccari</a> </div>
+  <div className="min-h-screen w-full font-dogica bg-[#403241] text-white">
+  <main className="min-h-screen grid w-full md:grid-cols-2 p-4 md:p-12 gap-8 items-center">
+    <div className="flex flex-col gap-3 w-full max-w-[480px] mx-auto md:ml-auto md:mr-0">
+      <div className="flex w-full items-center justify-between">
+        <span className="text-sm text-[#E2D5A1]">{enginestat}</span>
+        <span className={`text-xs transition-opacity duration-300 ${thinking ? "opacity-100 animate-pulse" : "opacity-0"}`}>
+          thinking...
+        </span>
       </div>
-      <div className="flex flex-col gap-6 h-full justify-center items-start content-center">
-        <div className="flex gap-6 justify-start w-full items-start content-center text-center">
-          <h1 className="text-xl">Depth</h1>
-          <div className="gap-2 flex flex-col">
-            <input type="range" step={1} min={1} max={5} value={depth} onChange={(e)=>setdepth(Number(e.target.value) as typeof depth)} className="sliderr">
-            </input>
-              <div className="flex justify-between px-[8px]">
-                {[1, 2, 3, 4, 5].map((n) => (
-                  <span key={n} className="font-dogica text-md text-[#E2D5A1]">{n}</span>
-                ))}
-              </div>
+      <div className="w-full aspect-square">
+        <Chessboard options={chessboardOptions} />
+      </div>
+      <p className="text-xs text-white/40">
+        artwork by{" "}
+        <a href="https://dani-maccari.itch.io/" className="text-[#E2D5A1] hover:text-[#784F48] transition-colors">
+          Dani Maccari
+        </a>
+      </p>
+    </div>
+
+    <div className="flex flex-col gap-6 w-full max-w-[400px] mx-auto md:mx-0">
+      <div className="flex items-center gap-6">
+        <span className="text-sm shrink-0">Depth</span>
+        <div className="flex flex-col gap-1 w-full">
+          <input
+            type="range"
+            step={1} min={1} max={5}
+            value={depth}
+            onChange={(e) => setdepth(Number(e.target.value) as typeof depth)}
+            className="sliderr"
+          />
+          <div className="flex justify-between px-2">
+            {[1, 2, 3, 4, 5].map((n) => (
+              <span key={n} className="text-xs text-[#E2D5A1]">{n}</span>
+            ))}
           </div>
         </div>
-        <div className="w-full max-w-[60%] p-2 aspect-square overflow-scroll bg-[#784F48] border-2 border-[#E2D5A1]">
-          {m_pairs.map((pair)=>(
-            <div key={pair.turn}>
-            <span>{pair.turn}{". "}</span>
-            <span>{pair.w} {" - "} {pair.b}</span>
-            </div>
-          ))}
-        </div>
       </div>
-    </main>
-  </div>
+
+      <div className="w-full h-64 overflow-y-auto bg-[#784F48] border-2 border-[#E2D5A1] p-2 flex flex-col gap-0.5">
+        {m_pairs.map((pair) => (
+          <div key={pair.turn} className="flex gap-2 text-sm">
+            <span className="text-[#E2D5A1]/60 w-6 shrink-0">{pair.turn}.</span>
+            <span>{pair.w}</span>
+            <span className="text-[#E2D5A1]/50">—</span>
+            <span>{pair.b}</span>
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={() => navigator.clipboard.writeText(game.pgn())}
+        className="w-fit bg-[#E2D5A1] px-4 py-3 text-sm text-[#784F48] cursor-pointer hover:bg-white active:scale-[0.99] transition-all"
+      >
+        copy PGN
+      </button>
+
+    </div>
+  </main>
+</div>
   );
 }
