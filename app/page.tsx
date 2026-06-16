@@ -16,7 +16,7 @@ export default function Home() {
   const [position, setPosition] = useState(game.fen());
   const [thinking, setThinking] = useState(false);
   const [playas, setPlayas] = useState('w');
-  const [enginestat, setEnginestat] = useState('Booting Engine...')
+  const [enginestat, setEnginestat] = useState('Starting Engine...')
   const [engineready, setEngeready] = useState(false)
   const workerRef = useRef<Worker | null>(null)
   const [depth, setdepth] = useState<1 | 2 | 3 | 4 | 5>(4)
@@ -129,19 +129,21 @@ const chessboardOptions: any = {
   lightSquareStyle: { backgroundColor: "#E2D5A1" }
 };
   return (
-   <div className="min-h-screen w-screen font-dogica bg-[#403241] text-white">
-      <main className="grid w-full min-h-screen h-full grid-cols-2 p-12 gap-8 items-center">
-        
-        <div className="w-full max-w-[500px] aspect-square justify-self-end">
-          <h1 className="text-3xl font-dogica">{enginestat}</h1>
+  <div className="min-h-screen h-screen w-full font-dogica bg-[#403241] text-white overflow-hidden">
+    <main className="grid w-full h-full grid-cols-2 p-12 gap-8 items-center">
+
+      <div className="flex flex-col gap-4 justify-self-end w-full max-w-[450px]">
+        <h1 className="text-3xl">{enginestat}</h1>
+        <div className="w-full aspect-square">
           <Chessboard options={chessboardOptions} />
         </div>
+      </div>
 
-        <div className="w-full h-full flex flex-col justify-center p-6">
-          <h1 className="text-3xl font-dogica">Depth: {depth}</h1>
-        </div>
+      <div className="flex flex-col justify-center p-6 justify-self-start">
+        <h1 className="text-3xl">Depth: {depth}</h1>
+      </div>
 
-      </main>
-    </div>
+    </main>
+  </div>
   );
 }
