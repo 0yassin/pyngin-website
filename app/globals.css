@@ -24,3 +24,44 @@ body {
   background: var(--background);
   color: var(--foreground);
 }
+
+.sliderr {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background:#784F48;
+  outline:none;
+  cursor: pointer;
+  image-rendering: pixelated;
+  border-left-width: 8px;
+  border-left-color: #E2D5A1;
+  border-right-width: 8px;
+  border-right-color: #E2D5A1;
+  
+}
+
+.sliderr::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background-image: url('/pieces/slider_thumb.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  border-radius: 0px;
+  border:none;
+  cursor: grab;
+  background-color: transparent;
+}
+
+.sliderr::-moz-range-thumb{
+  width: 16px;
+  height: 16px;
+  background-image: url('/pieces/slider_thumb.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  border-radius: 0px;
+  border:none;
+  cursor: grab;
+  background-color: transparent;
+}
