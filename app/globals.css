@@ -52,8 +52,16 @@ body {
   border:none;
   cursor: grab;
   background-color: transparent;
+
 }
 
+.sliderr::-webkit-slider-thumb:active{
+  scale: 100% 50%;
+}
+
+.sliderr::-moz-range-thumb:active{
+  scale: 90%;
+}
 .sliderr::-moz-range-thumb{
   width: 16px;
   height: 16px;

@@ -15,7 +15,7 @@ export default function Home() {
   const [game, setGame] = useState(new Chess());
   const [position, setPosition] = useState(game.fen());
   const [thinking, setThinking] = useState(false);
-  const [playas, setPlayas] = useState('w');
+  const [playas, setPlayas] = useState<'w' | 'b'>('w');
   const [enginestat, setEnginestat] = useState('Starting Engine...')
   const [engineready, setEngeready] = useState(false)
   const workerRef = useRef<Worker | null>(null)
@@ -27,17 +27,13 @@ export default function Home() {
   Object.keys(DARK_PIECE_COLUMNS).forEach((piece) => {
     const colIndex = DARK_PIECE_COLUMNS[piece];
     customPieces[piece] = () => (
-      <div
+      <div className="w-full scale-75 active:scale-68 aspect-square bg-no-repeat"
         style={{
-          width: '100%',
-          aspectRatio: 1,
           backgroundImage: `url('/pieces/d_pieces.png')`,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: `600% 100%`,
-          backgroundPosition: `${colIndex/5*100}% 0px`,
-          transform: 'scale(0.75)',
-          transformOrigin:'center',
-          imageRendering: 'pixelated'
+          backgroundSize: '600% 100%',
+          backgroundPosition: `${colIndex / 5 * 100}% 0px`,
+          imageRendering: 'pixelated',
+          
         }}
       />
     );
@@ -46,17 +42,13 @@ export default function Home() {
   Object.keys(WHITE_PIECE_COLUMNS).forEach((piece) => {
     const colIndex = WHITE_PIECE_COLUMNS[piece];
     customPieces[piece] = () => (
-      <div
+      <div className="w-full scale-75 active:scale-68 aspect-square bg-no-repeat"
         style={{
-          width: '100%',
-          aspectRatio: 1,
           backgroundImage: `url('/pieces/w_pieces.png')`,
-          backgroundRepeat: "no-repeat",
-          backgroundSize: `600% 100%`,
-          backgroundPosition: `${colIndex/5*100}% 0px`,
-          transform: 'scale(0.75)',
-          transformOrigin:'center',
-          imageRendering: 'pixelated'
+          backgroundSize: '600% 100%',
+          backgroundPosition: `${colIndex / 5 * 100}% 0px`,
+          imageRendering: 'pixelated',
+          
         }}
       />
     );
@@ -100,7 +92,7 @@ export default function Home() {
         depth: depth,
       })
     }
-  }, [position, game, engineready])
+  }, [position, game, engineready, playas])
 
   function onPieceDrop({sourceSquare, targetSquare, piece}: any) {
     if (thinking || !engineready || game.isGameOver() || game.turn() !== playas) return false;
@@ -158,8 +150,15 @@ export default function Home() {
     </div>
 
     <div className="flex flex-col gap-6 w-full max-w-[400px] mx-auto md:mx-0">
+      <div className="flex gap-3 w-full items-center">
+        <span className="text-sm">play as</span>
+        <div className="flex gap-2 ">
+          <button onClick={()=>setPlayas('w')} className={`active:scale-x-90 p-1.5 text-sm border border-[#784F48] cursor-pointer ${playas == "w" ? "bg-[#784F48] border-[#E2D5A1]" : "bg-transparent"}`}><span className="">white</span></button>
+          <button onClick={()=>setPlayas('b')} className={`active:scale-x-90 p-1.5 text-sm border border-[#784F48] cursor-pointer ${playas == "b" ? "bg-[#784F48] border-[#E2D5A1]" : "bg-transparent"}`}><span className="">black</span></button>
+        </div>
+      </div>
       <div className="flex items-center gap-6">
-        <span className="text-sm shrink-0">Depth</span>
+        <span className="text-sm shrink-0">depth</span>
         <div className="flex flex-col gap-1 w-full">
           <input
             type="range"
@@ -189,7 +188,7 @@ export default function Home() {
 
       <button
         onClick={() => navigator.clipboard.writeText(game.pgn())}
-        className="w-fit bg-[#E2D5A1] px-4 py-3 text-sm text-[#784F48] cursor-pointer hover:bg-white active:scale-[0.99] transition-all"
+        className="w-fit bg-[#E2D5A1] px-4 py-3 text-sm text-[#784F48] cursor-pointer hover:bg-white active:scale-x-95"
       >
         copy PGN
       </button>
