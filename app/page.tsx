@@ -20,9 +20,10 @@ export default function Home() {
   const [engineready, setEngeready] = useState(false)
   const workerRef = useRef<Worker | null>(null)
   const [depth, setdepth] = useState<1 | 2 | 3 | 4 | 5>(4)
-
+  const [w_captured, setw_captured] = useState<string[]>()
+  const [d_captured, setd_captured] = useState<string[]>()
+  const cap_ref = ['p','p','p','p','p','p','p','p','r','r','n','n','b','b','q','k']
   const customPieces: Record<string, any> = {};
-
 
   Object.keys(DARK_PIECE_COLUMNS).forEach((piece) => {
     const colIndex = DARK_PIECE_COLUMNS[piece];
@@ -48,7 +49,6 @@ export default function Home() {
           backgroundSize: '600% 100%',
           backgroundPosition: `${colIndex / 5 * 100}% 0px`,
           imageRendering: 'pixelated',
-          
         }}
       />
     );
@@ -94,6 +94,61 @@ export default function Home() {
     }
   }, [position, game, engineready, playas])
 
+  useEffect(()=>{
+    const curr_w_pieces = game.board()
+      .flat()
+      .filter(p => p?.color === "w")
+      .map(p => p!.type);
+
+    const curr_b_pieces = game.board()
+      .flat()
+      .filter(p => p?.color === "b")
+      .map(p => p!.type);
+
+    setw_captured(getPosdiff(cap_ref, curr_w_pieces)) 
+    setd_captured(getPosdiff(cap_ref, curr_b_pieces))
+    
+  }, [position])
+
+  function getPosdiff(a:string[], b:string[]){
+    const bcopy = [...b]
+    const diff:string[] = []
+    for (const item of a){
+      const index = bcopy.indexOf(item)
+      if (index === -1){
+        diff.push(item)
+      }
+      else {
+        bcopy.splice(index, 1)
+      }
+    }
+    return diff
+  }
+
+  function CapturedRow({ pieces, color }: { pieces: string[]; color: 'w' | 'b' }) {
+    const columns = color === 'w' ? WHITE_PIECE_COLUMNS : DARK_PIECE_COLUMNS;
+    const sprite = color === 'w' ? '/pieces/w_pieces.png' : '/pieces/d_pieces.png';
+    return (
+      <div className="flex gap-0.5 h-5">
+        {pieces.map((type, i) => {
+          const colIndex = columns[`${color}${type.toUpperCase()}`];
+          return (
+            <div
+              key={i}
+              className="w-5 h-5 bg-no-repeat"
+              style={{
+                backgroundImage: `url('${sprite}')`,
+                backgroundSize: '600% 100%',
+                backgroundPosition: `${colIndex / 5 * 100}% 0px`,
+                imageRendering: 'pixelated',
+              }}
+            />
+          );
+        })}
+      </div>
+    );
+}
+
   function onPieceDrop({sourceSquare, targetSquare, piece}: any) {
     if (thinking || !engineready || game.isGameOver() || game.turn() !== playas) return false;
     try {
@@ -102,9 +157,7 @@ export default function Home() {
         to: targetSquare,
         promotion: "q",
       });
-
       if (move === null) return false;
-
       setPosition(game.fen()); 
       return true;
     } catch (error) {
@@ -130,23 +183,26 @@ export default function Home() {
       b: _history[i+1] || "*",
   });}
 
-
   return (
   <div className="min-h-screen w-full font-dogica bg-[#403241] text-white">
   <main className="min-h-screen grid w-full md:grid-cols-2 p-4 md:p-12 gap-8 items-center">
     <div className="flex flex-col gap-3 w-full max-w-[480px] mx-auto md:ml-auto md:mr-0">
       <div className="flex w-full items-center justify-between">
         <span className="text-sm text-[#E2D5A1]">{enginestat}</span>
+        <CapturedRow pieces={w_captured??[]} color="w" />
       </div>
       <div className="w-full aspect-square">
         <Chessboard options={chessboardOptions} />
       </div>
-      <p className="text-xs text-white/40">
-        artwork by{" "}
-        <a href="https://dani-maccari.itch.io/" className="text-[#E2D5A1] hover:text-[#784F48] transition-colors">
-          Dani Maccari
-        </a>
-      </p>
+      <div className="w-full flex justify-between">  
+        <p className="text-xs text-white/40">
+          artwork by{" "}
+          <a href="https://dani-maccari.itch.io/" className="text-[#E2D5A1] hover:text-[#784F48] transition-colors">
+            Dani Maccari
+          </a>
+        </p>
+        <CapturedRow pieces={d_captured??[]} color="b" />
+      </div>
     </div>
 
     <div className="flex flex-col gap-6 w-full max-w-[400px] mx-auto md:mx-0">
@@ -192,7 +248,6 @@ export default function Home() {
       >
         copy PGN
       </button>
-
     </div>
   </main>
 </div>
