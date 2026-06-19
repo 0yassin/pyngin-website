@@ -23,9 +23,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={` ${dogica.variable} h-full antialiased`}
+      className={` ${dogica.variable} h-full antialiased bg-[#403241]`}
     >
-      <body className="min-h-full flex flex-col font-dogica">{children}</body>
+      <body className="min-h-full flex flex-col font-dogica]">{children}</body>
     </html>
   );
 }
