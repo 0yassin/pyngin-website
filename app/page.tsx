@@ -26,6 +26,7 @@ export default function Home() {
   const customPieces: Record<string, any> = {};
   const [loaded, setloaded] = useState(false)
   const [flashSquares, setFlashSquares] = useState<Record<string, any>>({});
+  const [boardOrientation, setBoardOrientation] = useState<'white' | 'black'>('white'); 
 
   Object.keys(DARK_PIECE_COLUMNS).forEach((piece) => {
     const colIndex = DARK_PIECE_COLUMNS[piece];
@@ -215,6 +216,18 @@ export default function Home() {
     }
   }
 
+  const bottomColor: 'w' | 'b' = boardOrientation === 'white' ? 'w' : 'b';
+  const topColor: 'w' | 'b' = bottomColor === 'w' ? 'b' : 'w';
+  const engineColor: 'w' | 'b' = playas === 'w' ? 'b' : 'w';
+
+  function capturedForSide(sideColor: 'w' | 'b') {
+    return sideColor === 'w'
+      ? { pieces: d_captured ?? [], color: 'b' as const }
+      : { pieces: w_captured ?? [], color: 'w' as const };
+  }
+  const topCaptured = capturedForSide(topColor);
+  const bottomCaptured = capturedForSide(bottomColor);
+
   const chessboardOptions: any = {
     onPieceDrop,
     id: 'pyngin-board',
@@ -223,6 +236,8 @@ export default function Home() {
     darkSquareStyle: { backgroundColor: "#784F48" },
     lightSquareStyle: { backgroundColor: "#E2D5A1" },
     squareStyles: flashSquares,
+    boardOrientation
+    
   };
 
   const _history = game.history()
@@ -237,24 +252,39 @@ export default function Home() {
   return (
   <div className="min-h-screen w-full font-dogica bg-[#403241] text-white">
   <main className="min-h-screen grid w-full md:grid-cols-2 p-4 md:p-12 gap-8 items-center">
-    <div className="flex flex-col gap-3 w-full max-w-[480px] mx-auto md:ml-auto md:mr-0">
-      <div className="flex w-full items-center justify-between">
+  <div className="flex flex-col gap-3 w-full max-w-[480px] mx-auto md:ml-auto md:mr-0">
+    <div className="flex w-full items-center justify-between">
+      {topColor === engineColor ? (
         <span className="text-sm text-[#E2D5A1]">{enginestat}</span>
-        <CapturedRow pieces={w_captured??[]} color="w" />
-      </div>
-      <div className="w-full aspect-square">
-        <Chessboard options={chessboardOptions} />
-      </div>
-      <div className="w-full flex justify-between">  
+      ) : (
         <p className="text-xs text-white/40">
           artwork by{" "}
           <a href="https://dani-maccari.itch.io/" className="text-[#E2D5A1] hover:text-[#784F48] transition-colors">
             Dani Maccari
           </a>
         </p>
-        <CapturedRow pieces={d_captured??[]} color="b" />
-      </div>
+      )}
+      <CapturedRow pieces={topCaptured.pieces} color={topCaptured.color} />
     </div>
+
+    <div className="w-full aspect-square">
+      <Chessboard options={chessboardOptions} />
+    </div>
+
+    <div className="w-full flex items-center justify-between">
+      {bottomColor === engineColor ? (
+        <span className="text-sm text-[#E2D5A1]">{enginestat}</span>
+      ) : (
+        <p className="text-xs text-white/40">
+          artwork by{" "}
+          <a href="https://dani-maccari.itch.io/" className="text-[#E2D5A1] hover:text-[#784F48] transition-colors">
+            Dani Maccari
+          </a>
+        </p>
+      )}
+      <CapturedRow pieces={bottomCaptured.pieces} color={bottomCaptured.color} />
+    </div>
+  </div>
 
     <div className="flex flex-col gap-6 w-full max-w-[400px] mx-auto md:mx-0">
       <div className="flex gap-3 w-full items-center">
@@ -262,6 +292,7 @@ export default function Home() {
         <div className="flex gap-2 ">
           <button onClick={()=>setPlayas('w')} className={`active:scale-x-90 p-1.5 text-sm border border-[#784F48] cursor-pointer ${playas == "w" ? "bg-[#784F48] border-[#E2D5A1]" : "bg-transparent"}`}><span className="">white</span></button>
           <button onClick={()=>setPlayas('b')} className={`active:scale-x-90 p-1.5 text-sm border border-[#784F48] cursor-pointer ${playas == "b" ? "bg-[#784F48] border-[#E2D5A1]" : "bg-transparent"}`}><span className="">black</span></button>
+          <button onClick={()=>{boardOrientation == "white" ? setBoardOrientation('black') : setBoardOrientation("white")}} className={`active:scale-x-90 p-1.5 text-sm border border-[#784F48] cursor-pointer`}><span className="">flip board</span></button>
         </div>
       </div>
       <div className="flex items-center gap-6">
