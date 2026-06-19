@@ -1,7 +1,7 @@
 "use client"; 
 import { useEffect, useRef, useState } from "react";
 import { Chessboard } from 'react-chessboard';
-import { Chess } from 'chess.js'; 
+import { Chess, Piece, Square } from 'chess.js'; 
 
 const DARK_PIECE_COLUMNS: Record<string, number> = {
   'bP': 0, 'bN': 1, 'bR': 2, 'bB': 3, 'bQ': 5, 'bK': 4
@@ -24,6 +24,8 @@ export default function Home() {
   const [d_captured, setd_captured] = useState<string[]>()
   const cap_ref = ['p','p','p','p','p','p','p','p','r','r','n','n','b','b','q','k']
   const customPieces: Record<string, any> = {};
+  const [loaded, setloaded] = useState(false)
+  const [flashSquares, setFlashSquares] = useState<Record<string, any>>({});
 
   Object.keys(DARK_PIECE_COLUMNS).forEach((piece) => {
     const colIndex = DARK_PIECE_COLUMNS[piece];
@@ -110,6 +112,54 @@ export default function Home() {
     
   }, [position])
 
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  useEffect(()=>{
+    if (enginestat != "Your Turn") return;
+    if (!loaded) {
+      intervalRef.current = flash_anim(6);
+      setloaded(true);
+      return;
+    }
+    const timeoutId = setTimeout(() => {
+      intervalRef.current = flash_anim(2);
+    }, 4000);
+    return () => {
+      clearTimeout(timeoutId);
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [enginestat])
+
+  function flash_anim(max_flashes: number, bg_highlight: string = `rgba(64, 50, 64, 0.65)`, mode = "legal_pieces") {
+    let squares: Square[];
+
+    if (game.isCheck()) {
+      squares = game.findPiece({ type: "k", color: playas });
+    } else {
+      squares = game.board().flat().filter(p => p?.color === playas).map(p => p!.square);
+    }
+
+    const highlight = { backgroundColor: bg_highlight };
+    let flashCount = 0;
+    const maxFlashes = max_flashes || 6;
+
+    const interval = setInterval(() => {
+      flashCount++;
+      if (flashCount % 2 === 1) {
+        const styles: Record<string, any> = {};
+        squares.forEach(sq => { styles[sq] = highlight; });
+        setFlashSquares(styles);
+      } else {
+        setFlashSquares({});
+      }
+      if (flashCount >= maxFlashes) {
+        clearInterval(interval);
+        setFlashSquares({});
+      }
+    }, 250);
+
+    return interval;
+  }
+
   function getPosdiff(a:string[], b:string[]){
     const bcopy = [...b]
     const diff:string[] = []
@@ -171,7 +221,8 @@ export default function Home() {
     position: position,
     pieces: customPieces,
     darkSquareStyle: { backgroundColor: "#784F48" },
-    lightSquareStyle: { backgroundColor: "#E2D5A1" }
+    lightSquareStyle: { backgroundColor: "#E2D5A1" },
+    squareStyles: flashSquares,
   };
 
   const _history = game.history()
