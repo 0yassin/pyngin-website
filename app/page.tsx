@@ -130,9 +130,8 @@ export default function Home() {
     };
   }, [enginestat])
 
-  function flash_anim(max_flashes: number, bg_highlight: string = `rgba(64, 50, 64, 0.65)`, mode = "legal_pieces") {
+  function flash_anim(max_flashes: number, bg_highlight: string = `rgba(64, 50, 64, 0.4)`, mode = "legal_pieces") {
     let squares: Square[];
-
     if (game.isCheck()) {
       squares = game.findPiece({ type: "k", color: playas });
     } else {
@@ -142,7 +141,6 @@ export default function Home() {
     const highlight = { backgroundColor: bg_highlight };
     let flashCount = 0;
     const maxFlashes = max_flashes || 6;
-
     const interval = setInterval(() => {
       flashCount++;
       if (flashCount % 2 === 1) {
@@ -212,6 +210,7 @@ export default function Home() {
       setPosition(game.fen()); 
       return true;
     } catch (error) {
+      flash_anim(4)
       return false; 
     }
   }
